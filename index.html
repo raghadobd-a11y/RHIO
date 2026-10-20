@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>الوحدة القرائية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;600;700&family=Noto+Naskh+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+{% if inline_css %}<style>{{ inline_css|safe }}</style>{% else %}<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">{% endif %}
+</head>
+<body>
+
+<header class="hero">
+  <p class="grade">اللغة العربية · الصف الثاني ثانوي</p>
+  <h1>الوحدة القرائية</h1>
+  <p class="sub">اقرأ الملخص، راجع بالبطاقات، ثم اختبر نفسك.</p>
+</header>
+
+<div class="tabs" role="tablist" aria-label="أقسام الموقع">
+  <button role="tab" aria-selected="true" data-tab="summary">📚 الملخص</button>
+  <button role="tab" aria-selected="false" data-tab="cards">🃏 بطاقات المراجعة</button>
+  <button role="tab" aria-selected="false" data-tab="quiz">✍️ الاختبار</button>
+</div>
+
+<main>
+
+<!-- الملخص -->
+<section id="summary" class="panel-tab" role="tabpanel">
+  <div class="toolbar">
+    <span id="readCount">قرأت ٠ من {{ sections|length }} أقسام</span>
+    <button type="button" class="link-btn" id="toggleAll">افتح الكل</button>
+  </div>
+
+  {% for s in sections %}
+  <details class="sec c-{{ s.color }}" id="{{ s.id }}">
+    <summary>
+      <span class="ico" aria-hidden="true">{{ s.icon }}</span>
+      <span class="st"><b>{{ s.title }}</b><small>{{ s.subtitle }}</small></span>
+      <span class="chev" aria-hidden="true"></span>
+    </summary>
+    <div class="sec-body">
+      {% if s.intro %}<p class="intro">{{ s.intro }}</p>{% endif %}
+      {% if s.quote %}<blockquote>“{{ s.quote }}”</blockquote>{% endif %}
+      {% for it in s["items"] %}
+      <details class="item">
+        <summary>
+          <span>{{ it.title }}{% if it.tag %} <em class="tag">{{ it.tag }}</em>{% endif %}</span>
+          <span class="chev sm" aria-hidden="true"></span>
+        </summary>
+        <div class="item-body">
+          {% if it.steps %}<ol class="steps">{% for st in it.steps %}<li>{{ st }}</li>{% endfor %}</ol>{% endif %}
+          {% if it.text %}<p>{{ it.text }}</p>{% endif %}
+          {% if it.bullets %}<ul>{% for b in it.bullets %}<li>{{ b }}</li>{% endfor %}</ul>{% endif %}
+        </div>
+      </details>
+      {% endfor %}
+    </div>
+  </details>
+  {% endfor %}
+
+  <button type="button" class="btn center" data-go="cards">انتقل إلى بطاقات المراجعة</button>
+</section>
+
+<!-- البطاقات -->
+<section id="cards" class="panel-tab" role="tabpanel" hidden>
+  <p class="hint">اضغط على البطاقة لتقلبها.</p>
+  <button type="button" class="flip" id="flip" aria-live="polite">
+    <span class="face front" id="cardFront"></span>
+    <span class="face back" id="cardBack"></span>
+  </button>
+  <div class="card-nav">
+    <button type="button" class="btn ghost" id="prevCard">السابقة</button>
+    <span id="cardCount"></span>
+    <button type="button" class="btn ghost" id="nextCard">التالية</button>
+  </div>
+  <button type="button" class="link-btn center" id="shuffleCards">رتّب البطاقات عشوائيًا</button>
+</section>
+
+<!-- الاختبار -->
+<section id="quiz" class="panel-tab" role="tabpanel" hidden>
+  <div class="progress"><i id="bar"></i></div>
+  <div class="qcard" id="qcard">
+    <p class="qnum" id="qnum"></p>
+    <h2 class="qtext" id="qtext"></h2>
+    <div class="opts" id="opts"></div>
+    <p class="fb" id="fb" aria-live="polite"></p>
+    <button type="button" class="btn" id="nextQ" hidden>السؤال التالي</button>
+  </div>
+  <div class="result" id="result" hidden>
+    <div class="ring" id="ring"><span id="pct"></span></div>
+    <h2 id="resTitle"></h2>
+    <p id="resMsg"></p>
+    <div id="review"></div>
+    <button type="button" class="btn" id="retry">أعد الاختبار بترتيب جديد</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="credit">عمل الطالبة: رغد العبيد</footer>
+
+<script>
+  window.FLASHCARDS = {{ flashcards|tojson }};
+  window.QUESTIONS = {{ questions|tojson }};
+</script>
+{% if inline_js %}<script>{{ inline_js|safe }}</script>{% else %}<script src="{{ url_for('static', filename='script.js') }}"></script>{% endif %}
+</body>
+</html>
